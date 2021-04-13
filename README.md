@@ -1,0 +1,2 @@
+The project is a deterministic Turing machine with an infinite tape, in the sense that the length of the input and output words is not limited. Data entry and programs for processing occur via files by definition: M = {Q, A, b, Σ, q0, F, ẟ}. You can get more information about the input in the "Documentation". To run the program, use the ready-made "Release" build, or you can compile the code from the "Source code" yourself.
+

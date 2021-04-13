@@ -2,6 +2,10 @@
 #include <vector>
 #include <string>
 #include <fstream>
+#include <chrono>
+#include <thread>
+#include <cstdlib>
+
 
 struct rule {
 	std::string stateStart;
@@ -17,8 +21,9 @@ class TuringMachine {
 private:
 	std::vector<std::string> Q;
 
-	std::string state = "E";
-	std::string end = "E";
+	std::string state;
+	char blank; // blank;
+	std::vector<std::string> F;
 
 	std::vector<char> A;
 	std::vector<rule> P;
@@ -26,13 +31,51 @@ private:
 	std::vector<char> Feed;
 	int workIndex = 0;
 
-	bool DoWork() {
-		if (state == end || workIndex > Feed.size() - 1) {
+	bool Stopped(char a, char b, int move) {
+		if (a == b && move == 0) {
+			return true;
+		}
+		else {
 			return false;
+		}
+	}
+
+	bool DoWork() {
+		std::this_thread::sleep_for(std::chrono::milliseconds(500)); // Delay before displaying a new state
+
+		system("@cls||clear");
+
+		for (char a : Feed) {
+			std::cout << a;
+		} // Displaying a string on the screen
+		std::cout << std::endl;
+		
+		for (int i = 0; i < workIndex; i++) {
+			std::cout << " ";
+		}
+		std::cout << "^";
+
+		if (workIndex > (int)(Feed.size() - 1)) {
+			Feed.push_back(blank);
+		}
+
+		if (workIndex < 0) {
+			Feed.push_back(blank);
+
+			for (int i = Feed.size() - 1; i > 0; i--) {
+				Feed[i] = Feed[i - 1];
+			}
+			Feed[0] = blank;
+
+			workIndex++;
 		}
 
 		for (rule a : P) {
 			if (a.stateStart == state && a.startSym == Feed[workIndex]) {
+				if (Stopped(a.startSym, a.endSym, a.move)) {
+					return false;
+				}
+
 				Feed[workIndex] = a.endSym;
 				state = a.stateEnd;
 				workIndex += a.move;
@@ -40,13 +83,16 @@ private:
 			}
 		}
 
+		std::cout << "Failed to process character: no rule exists.";
 		return false;
 	}
 
 public:
 	friend std::ostream& operator<<(std::ostream& stream, TuringMachine& mach) {
 		for (char c : mach.Feed) {
-			stream << c;
+			if (c != mach.blank) {
+				stream << c;
+			}
 		}
 
 		return stream;
@@ -74,12 +120,13 @@ public:
 		Feed.push_back(a);
 	}
 
-	TuringMachine(std::vector<std::string>& Q, std::vector<char>& A, std::vector<rule>& P, std::string& start, std::string& end) {
+	TuringMachine(std::vector<std::string>& Q, std::vector<char>& A, char b, std::vector<rule>& P, std::string& start, std::vector<std::string>& F) {
 		this->Q = Q;
 		this->A = A;
+		this->blank = b;
 		this->P = P;
 		this->state = start;
-		this->end = end;
+		this->F = F;
 	}
 
 	void Work() {
@@ -104,11 +151,14 @@ int main()
 	std::vector<char> A;
 	std::vector<rule> P;
 	std::string start;
-	std::string end;
+	char blank;
+	std::vector<std::string> F;
 
 	std::string startStatus;
 	std::string endStatus;
 
+	std::string line;
+	std::cout << "Please enter the file name with the extension: ";
 	std::cin >> name;
 
 	char buffC = ' ';
@@ -117,10 +167,10 @@ int main()
 	std::ifstream f(name.c_str());
 
 	if (!f) {
+		std::cout << "Couldn't open the file." << std::endl;
+		std::cin >> line;
 		return 1;
 	}
-
-	// Считывание программы*/
 
 	std::string buff;
 	while (f.get() != '\n') {
@@ -135,15 +185,20 @@ int main()
 		A.push_back(buffC);
 	}
 
-	f >> buff;
-	start = buff;
-	// Начальное состояние
+	f >> blank;
 
-	f >> buff;
-	end = buff;
-	// Конечное состояние
+	f >> start;
+	f.get();
+	// Init state
 
-	// Считываем программу
+	while (f.get() != '\n') {
+		f.unget();
+		f >> buff;
+		F.push_back(buff);
+	}
+	// Accepting states
+
+	// Programm
 
 	while (!f.eof()) {
 		rule r;
@@ -173,18 +228,20 @@ int main()
 		P.push_back(r);
 	}
 
-	// Считываем программа
+	// Programm
 
 	f.close();
 
-	TuringMachine t(Q, A, P, start, end);
+	TuringMachine t(Q, A, blank, P, start, F);
 
-	std::string line;
+	std::cout << "Please enter the word to be processed:\n";
 	std::cin >> line;
 
 	t.DoFeed(line);
 	t.Work();
 
-	std::cout << t;
+	system("@cls||clear");
+	std::cout << "It was: " << line << std::endl;
+	std::cout << "Become: " << t << std::endl;
 	std::cin >> line;
 }
