@@ -22,7 +22,7 @@ private:
 	std::vector<std::string> Q;
 
 	std::string state;
-	char blank; // blank;
+	char blank = ' '; // blank;
 	std::vector<std::string> F;
 
 	std::vector<char> A;
@@ -31,29 +31,11 @@ private:
 	std::vector<char> Feed;
 	int workIndex = 0;
 
-	bool Stopped(char a, char b, int move) {
-		if (a == b && move == 0) {
-			return true;
-		}
-		else {
-			return false;
-		}
-	}
-
 	bool DoWork() {
-		std::this_thread::sleep_for(std::chrono::milliseconds(500)); // Delay before displaying a new state
-
-		system("@cls||clear");
-
 		for (char a : Feed) {
 			std::cout << a;
 		} // Displaying a string on the screen
 		std::cout << std::endl;
-		
-		for (int i = 0; i < workIndex; i++) {
-			std::cout << " ";
-		}
-		std::cout << "^";
 
 		if (workIndex > (int)(Feed.size() - 1)) {
 			Feed.push_back(blank);
@@ -70,28 +52,34 @@ private:
 			workIndex++;
 		}
 
+		for (int i = 0; i < workIndex; i++) {
+			std::cout << " ";
+		}
+		std::cout << "^\n";
+
 		for (rule a : P) {
 			if (a.stateStart == state && a.startSym == Feed[workIndex]) {
-				if (Stopped(a.startSym, a.endSym, a.move)) {
-					return false;
-				}
-
 				Feed[workIndex] = a.endSym;
 				state = a.stateEnd;
 				workIndex += a.move;
 				return true;
 			}
 		}
-
-		std::cout << "Failed to process character: no rule exists.";
 		return false;
 	}
 
 public:
+	void stat() {
+		std::cout << state << std::endl;
+	}
+
 	friend std::ostream& operator<<(std::ostream& stream, TuringMachine& mach) {
 		for (char c : mach.Feed) {
 			if (c != mach.blank) {
 				stream << c;
+			}
+			else {
+				stream << ' ';
 			}
 		}
 
@@ -240,8 +228,8 @@ int main()
 	t.DoFeed(line);
 	t.Work();
 
-	system("@cls||clear");
 	std::cout << "It was: " << line << std::endl;
-	std::cout << "Become: " << t << std::endl;
+	std::cout << "Become: " << t << std::endl;;
+	std::cout << "Final state: ";  t.stat();
 	std::cin >> line;
 }
