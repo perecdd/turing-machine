@@ -94,9 +94,17 @@ void emulate(const database& bd_, tape& tape_, std::string initial_state, std::o
 {
 	command cm;
 	int symbol = 0; // To show position of Turing machine head
+
+	tape_.Output(output);
+	output << "\n^\n";
 	
 	while(bd_.count({ command::IState(initial_state), command::ISym(tape_.getCurrent()) }))
 	{
+		cm = bd_.at({ command::IState(initial_state), command::ISym(tape_.getCurrent()) });
+		tape_.getCurrent() = cm.getFSym().value_;
+		initial_state = cm.getFState().value_;
+		if (tape_.Shift(cm.getDir())) ++symbol;
+
 		symbol += int(cm.getDir());
 		if (symbol < 0) symbol = 0;
 
@@ -105,20 +113,15 @@ void emulate(const database& bd_, tape& tape_, std::string initial_state, std::o
 
 		for (int i = 0; i < symbol; ++i) output << ' ';
 		output << "^\n";
-		
-		cm = bd_.at({ command::IState(initial_state), command::ISym(tape_.getCurrent()) });
-		tape_.getCurrent() = cm.getFSym().value_;
-		initial_state = cm.getFState().value_;
-		tape_.Shift(cm.getDir());
 	}
 
 	// to show final state
-	symbol += int(cm.getDir());
+	/*symbol += int(cm.getDir());
 	if (symbol < 0) symbol = 0;
 
 	tape_.Output(output);
 	output << '\n';
 
 	for (int i = 0; i < symbol; ++i) output << ' ';
-	output << "^\n";
+	output << "^\n";*/
 }

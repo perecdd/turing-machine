@@ -16,7 +16,7 @@ public:
 	void ToBegin();
 	void ToEnd();
 	void Output(std::ostream& stream);
-	void Shift(std::int8_t direction_);
+	bool Shift(std::int8_t direction_); // bool to catch cases when tape resize
 	void clear();
 	std::size_t size();
 

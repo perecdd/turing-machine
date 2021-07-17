@@ -68,16 +68,21 @@ void tape::Output(std::ostream& stream)
 	}
 }
 
-void tape::Shift(std::int8_t direction_)
+bool tape::Shift(std::int8_t direction_)
 {
 	switch(direction_)
 	{
 	case -1:
-		if (it != tape_.begin()) --it;
+		if (it != tape_.begin()) {
+			--it;
+			break;
+		}
+		
 		if (it == tape_.begin())
 		{
 			tape_.push_front(empty_string);
 			it = tape_.begin();
+			return true;
 		}
 		break;
 
@@ -96,6 +101,7 @@ void tape::Shift(std::int8_t direction_)
 	default:
 		throw std::invalid_argument("Tape: direction does not belong to [-1;1]");
 	}
+	return false;
 }
 
 void tape::clear()
