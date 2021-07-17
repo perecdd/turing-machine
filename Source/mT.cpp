@@ -48,7 +48,12 @@ int main() {
 	catch (const std::exception& ex)
 	{
 		std::cout << ex.what();
+		std::cin.clear();
+		char a;
+		std::cin >> a;
 	}
-	std::cin.get();
+	std::cin.clear();
+	char a;
+	std::cin >> a;
 	return 0;
 }

@@ -42,6 +42,9 @@ std::istream& operator>>(std::istream& stream, database& bd_)
 		{
 			std::cerr << std::to_string(lines_) + " line: " << exception.what() + std::string(" ") + "\n";
 			flag = true;
+			std::cin.clear();
+			char a;
+			std::cin >> a;
 		}
 	}
 
