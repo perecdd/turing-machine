@@ -114,14 +114,4 @@ void emulate(const database& bd_, tape& tape_, std::string initial_state, std::o
 		for (int i = 0; i < symbol; ++i) output << ' ';
 		output << "^\n";
 	}
-
-	// to show final state
-	/*symbol += int(cm.getDir());
-	if (symbol < 0) symbol = 0;
-
-	tape_.Output(output);
-	output << '\n';
-
-	for (int i = 0; i < symbol; ++i) output << ' ';
-	output << "^\n";*/
 }
